@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Imaging Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .response-message {
+            margin-top: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .final-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #eafbea;
+            border: 1px solid #b2dfb2;
+            font-size: 16px;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Upload Your Medical Imaging Data</h1>
+        <form id="uploadForm" enctype="multipart/form-data" method="POST">
+            <label for="imageUpload">Select an image (X-ray, MRI, CT, etc.):</label>
+            <input type="file" id="imageUpload" name="image" accept="image/*" required>
+            <button type="submit">Upload Image</button>
+        </form>
+
+        <div class="response-message" id="responseMessage"></div>
+        <div class="final-message" id="finalMessage" style="display:none;"></div>
+    </div>
+
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const submitButton = uploadForm.querySelector('button[type="submit"]');
+        const fileInput = document.getElementById('imageUpload');
+        const responseMessage = document.getElementById('responseMessage');
+        const finalMessage = document.getElementById('finalMessage');
+
+        uploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            submitButton.disabled = true;
+            fileInput.disabled = true;
+            responseMessage.innerHTML = "<p>Processing... Please wait.</p>";
+            finalMessage.style.display = "none";
+            finalMessage.textContent = "";
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.agent_a_result) {
+                    responseMessage.innerHTML = `<p><b>Detected Image Type:</b> ${data.agent_a_result.image_type}</p>`;
+                } else if (data.message) {
+                    responseMessage.innerHTML = `<p>${data.message}</p>`;
+                } else if (data.error) {
+                    responseMessage.innerHTML = `<p style="color:red;">${data.error}</p>`;
+                }
+
+                if (data.final_feedback) {
+                    finalMessage.style.display = "block";
+                    finalMessage.textContent = "AI Doctor's Feedback:\n" + data.final_feedback;
+                }
+
+            } catch (err) {
+                responseMessage.innerHTML = `<p style="color:red;">Error: ${err}</p>`;
+            } finally {
+                submitButton.disabled = false;
+                fileInput.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
