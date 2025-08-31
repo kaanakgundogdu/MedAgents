@@ -27,20 +27,38 @@ model = AutoModelForCausalLM.from_pretrained(
 # ======================
 
 def generate_radiologist_feedback(image_type, analysis_result, model_used):
-    """
-    Generate patient-friendly feedback.
-    Summarizes findings as: Normal/Healthy vs. Needs attention.
-    """
+    findings = {}
+    for item in analysis_result.split(','):
+        item = item.strip()
+        if '(' in item and ')' in item:
+            name, val = item.split('(')
+            name = name.strip()
+            try:
+                val = float(val.strip(')'))
+                findings[name] = val
+            except:
+                continue
+
+    threshold = 0.5  # probability threshold
+    normal_findings = [k for k, v in findings.items() if v < threshold]
+    abnormal_findings = [k for k, v in findings.items() if v >= threshold]
+
+    abnormal_findings = sorted(abnormal_findings, key=lambda x: -findings[x])[:5]
+
+    simple_summary = (
+        f"Normal areas: {', '.join(normal_findings) if normal_findings else 'None'}\n"
+        f"Abnormal areas needing attention: {', '.join(abnormal_findings) if abnormal_findings else 'None'}"
+    )
+
     prompt = (
         f"You are a professional radiologist.\n"
         f"Image type: {image_type}\n"
-        f"Analysis result: {analysis_result}\n"
-        f"Model used: {model_used}\n\n"
-        "Write a clear, patient-friendly summary:\n"
-        "- Start with 'You are healthy in the following areas:' if some findings are normal.\n"
-        "- Then say 'Please monitor or consult for:' for any detected abnormalities.\n"
-        "- Do NOT repeat medical definitions of each disease.\n"
-        "- Keep it concise and understandable for a patient.\n"
+        f"Summary of findings:\n{simple_summary}\n\n"
+        "Write a short, patient-friendly report. "
+        "- Start with 'You are healthy in the following areas:'\n"
+        "- Then say 'Please monitor or consult for:'\n"
+        "- Avoid repeating medical definitions.\n"
+        "- Keep it concise and clear for a patient.\n"
     )
 
     inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
@@ -49,7 +67,7 @@ def generate_radiologist_feedback(image_type, analysis_result, model_used):
         outputs = model.generate(
             input_ids=inputs["input_ids"],
             attention_mask=inputs["attention_mask"],
-            max_new_tokens=256,  # shorter and concise
+            max_new_tokens=150,
             do_sample=True,
             temperature=0.6,
             top_k=40,
@@ -59,11 +77,11 @@ def generate_radiologist_feedback(image_type, analysis_result, model_used):
 
     full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
     
+    # Remove prompt content
     for line in prompt.splitlines():
         full_output = full_output.replace(line, "")
     
-    reply = full_output.strip()
-    return reply
+    return full_output.strip()
 
 
 @app.route('/generate-feedback', methods=['POST'])
