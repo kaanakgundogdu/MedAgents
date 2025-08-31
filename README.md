@@ -11,6 +11,8 @@ The system takes medical images and turns them into easy-to-understand, human-re
 ![FLow Chart](readme_files/general_flow_chart.png)
 
 
-An example of the resulting output is shown in the image below:
+Some examples of the resulting output are shown in the images below:
 
 <img width="1007" height="1021" alt="image" src="https://github.com/user-attachments/assets/274a3268-25b9-435d-a40d-ef4fcc21f599" />
+</br> </br> </br>
+<img width="1072" height="914" alt="image" src="https://github.com/user-attachments/assets/fa39ea4a-f94f-49a8-a967-e95b3bb51633" />
