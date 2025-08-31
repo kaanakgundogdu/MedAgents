@@ -13,4 +13,4 @@ The system takes medical images and turns them into easy-to-understand, human-re
 
 An example of the resulting output is shown in the image below:
 
-<img width="1896" height="1087" alt="image" src="https://github.com/user-attachments/assets/e22a974f-16dd-4746-b314-d3a76830092e" />
+<img width="1007" height="1021" alt="image" src="https://github.com/user-attachments/assets/274a3268-25b9-435d-a40d-ef4fcc21f599" />
