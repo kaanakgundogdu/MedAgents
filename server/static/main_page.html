@@ -61,6 +61,8 @@
             border: 1px solid #b2dfb2;
             font-size: 16px;
             white-space: pre-line;
+            max-height: 400px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -101,7 +103,7 @@
                 const response = await fetch('/upload', { method: 'POST', body: formData });
                 const data = await response.json();
 
-                if (data.agent_a_result) {
+                if (data.agent_a_result?.image_type) {
                     responseMessage.innerHTML = `<p><b>Detected Image Type:</b> ${data.agent_a_result.image_type}</p>`;
                 } else if (data.message) {
                     responseMessage.innerHTML = `<p>${data.message}</p>`;

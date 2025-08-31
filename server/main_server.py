@@ -47,7 +47,7 @@ def send_image_to_agent_a(file):
         file_stream = BytesIO(file.read())
         files = {'image': (file.filename, file_stream, file.mimetype)}
         
-        response = requests.post(agent_a_url, files=files, timeout=15)
+        response = requests.post(agent_a_url, files=files, timeout=150)
         if response.status_code == 200:
             return response.json()
         else:

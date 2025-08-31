@@ -14,8 +14,5 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Ignore all files in the agent_a upload directory
-agent_a/agent_a_uploads/
-
-# Ignore all files in the server upload directory
-server/uploads/
+# Ignore any directory ending with 'uploads'
+*uploads/
